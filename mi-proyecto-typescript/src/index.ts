@@ -29,15 +29,40 @@ console.log(mensaje4);
 //--------------------------------
 let tareas: Task[] = [];
 
-// Arrow function para agregar una nueva tarea
-const addTask = (title: string) => {
-  let nuevaTarea: Task = {
-    id: tareas.length + 1,
-    title: title,
-    completed: false
-  };
-  tareas.push(nuevaTarea);
-  console.log("Tarea agregada exitosamente");
+// Simula el guardado de una tarea con 2 segundos de retraso
+const saveToDB = (tarea: Task): Promise<void> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log(`Tarea "${tarea.title}" guardada en la base de datos.`);
+      resolve();
+    }, 2000);
+  });
+};
+
+// Arrow function async para agregar una nueva tarea
+const addTask = async (title: string) => {
+  try {
+    if (!title.trim()) {
+      throw new Error("El título de la tarea no puede estar vacío.");
+    }
+
+    let nuevaTarea: Task = {
+      id: tareas.length + 1,
+      title: title,
+      completed: false
+    };
+
+    await saveToDB(nuevaTarea);
+
+    tareas.push(nuevaTarea);
+    console.log("Tarea agregada exitosamente");
+  } catch (error) {
+    if (error instanceof Error) {
+      console.log("Error al agregar la tarea: " + error.message);
+    } else {
+      console.log("Ocurrió un error desconocido al agregar la tarea.");
+    }
+  }
 };
 
 // Arrow function para eliminar la última tarea
@@ -50,7 +75,7 @@ const removeTask = () => {
   }
 };
 
-// Marca una tarea como completada buscando por id con find
+// Marca una tarea como completada buscando por id con .find()
 const markCompleted = (id: number) => {
   const tarea = tareas.find((t) => t.id === id);
   if (tarea) {
@@ -106,7 +131,7 @@ while (opcion !== "7") {
 
   if (opcion === "1") {
     let titulo = await rl.question("Escribe la tarea: ");
-    addTask(titulo);
+    await addTask(titulo);
   }
   else if (opcion === "2") {
     removeTask();
